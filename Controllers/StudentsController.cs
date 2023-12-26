@@ -6,22 +6,31 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LW_WEB.Models;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LW_WEB.Controllers
 {
     public class StudentsController : Controller
     {
         private readonly LwWebContext _context;
+        private readonly IMemoryCache _cache;
 
-        public StudentsController(LwWebContext context)
+        public StudentsController(LwWebContext context, IMemoryCache cache)
         {
             _context = context;
+            _cache = cache;
         }
 
         // GET: Students
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Students.ToListAsync());
+            var students = await _cache.GetOrCreateAsync("Students", async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10); // Cache for 10 minutes
+
+                return await _context.Students.ToListAsync();
+            });
+            return View(students);
         }
 
         // GET: Students/Details/5

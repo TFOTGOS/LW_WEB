@@ -3,8 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<LwWebContext>(option => option.UseSqlServer(
-    builder.Configuration.GetConnectionString("AzureConnection")
+    builder.Configuration.GetConnectionString("DefaultConnection")
 ));
+
+builder.Services.AddMemoryCache();
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
